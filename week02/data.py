@@ -1,11 +1,11 @@
 import tensorflow as tf
 
-workdir = "./"
+workdir = "./data/"
 train_info_path = workdir + "train.info"
 test_info_path = workdir + "test.info"
 
 def decode_func(filename, label = None):
-	img_string = tf.read_file(filename)
+	img_string = tf.read_file(workdir+filename)
 	img_decode = tf.image.decode_jpeg(img_string)
 	img_resized_155 = tf.image.resize_images(img_decode, [155, 155])
 	img_resized_67 = tf.image.resize_images(img_decode, [67, 67])
