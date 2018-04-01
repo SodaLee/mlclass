@@ -1,4 +1,6 @@
 import tensorflow as tf
+import random
+import numpy as np
 
 workdir = "./data/"
 train_info_path = workdir + "train.info"
@@ -18,7 +20,7 @@ def decode_func(filename, label = None):
 	else:
 		return img_float_155, img_float_67, img_float_23
 
-def read():
+def read(batch, validation = 0.1):
 	train_filenames = []
 	train_labels = []
 	test_filenames = []
@@ -28,15 +30,37 @@ def read():
 			line = i.split()
 			train_filenames.append(line[0])
 			train_labels.append(int(line[1]))
-			depth = max(depth, train_labels[-1])
+			depth = max(depth, train_labels[-1] + 1)
 	with open(test_info_path, "r") as f:
 		for i in f:
 			test_filenames.append(i)
 
-	train_set = tf.data.Dataset.from_tensor_slices((train_filenames, train_labels))
+	n_val = int(validation * len(train_filenames))
+	n_val -= n_val % batch
+	n_train = len(train_filenames) - n_val
+	n_train -= n_train % batch
+
+	indices = list(range(len(train_filenames)))
+	random.shuffle(indices)
+
+	train_filenames = np.array(train_filenames)
+	train_labels = np.array(train_labels)
+
+	train_set = tf.data.Dataset.from_tensor_slices((train_filenames[indices[:n_train]], train_labels[indices[:n_train]]))
+	val_set = tf.data.Dataset.from_tensor_slices((train_filenames[indices[n_train:n_train+n_val]], train_labels[indices[n_train:n_train+n_val]]))
 	test_set = tf.data.Dataset.from_tensor_slices(test_filenames)
 
 	train_set = train_set.map(decode_func)
+	train_set = train_set.shuffle(buffer_size = 500)
+	train_set = train_set.batch(batch)
+
+	val_set = val_set.map(decode_func)
+	val_set = val_set.batch(batch)
+
 	test_set = test_set.map(decode_func)
+	test_set = test_set.batch(batch)
+
+	print("read done, n_train: %d n_val: %d n_test: %d, total: %d, label: %d"%
+		(n_train, n_val, len(test_filenames), len(test_filenames)+len(train_filenames), depth))
 		
-	return train_set, test_set, depth
+	return train_set, val_set, test_set, depth
