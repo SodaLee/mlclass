@@ -42,8 +42,9 @@ def mynet(batchX_155, batchX_67, batchX_23, depth, batch_size):
 		conv3_155 = f_net(tf.concat([batchX_23, conv2_155], 3))
 		out_155 = tf.reshape(conv3_155, [batch_size, 50])
 		W_155 = tf.Variable(tf.truncated_normal([50, depth], stddev=0.1))
-		b_155 = tf.Variable(tf.zeros([batch_size, depth]))
-		fc_155 = tf.matmul(out_155, W_155) + b_155
+		b_155 = tf.Variable(tf.zeros([depth]))
+		fc_155 = tf.matmul(out_155, W_155)
+		fc_155 = tf.nn.bias_add(fc_155, b_155)
 	#f*f
 	with tf.variable_scope('L', reuse=True) as scope:
 		empty_67 = tf.zeros([batch_size, 67, 67, 50])
@@ -51,16 +52,18 @@ def mynet(batchX_155, batchX_67, batchX_23, depth, batch_size):
 		conv2_67 = f_net(tf.concat([batchX_23, conv1_67], 3))
 		out_67 = tf.reshape(conv2_67, [batch_size, 50])
 		W_67 = tf.Variable(tf.truncated_normal([50, depth], stddev=0.1))
-		b_67 = tf.Variable(tf.zeros([batch_size, depth]))
-		fc_67 = tf.matmul(out_67, W_67) + b_67
+		b_67 = tf.Variable(tf.zeros([depth]))
+		fc_67 = tf.matmul(out_67, W_67)
+		fc_67 = tf.nn.bias_add(fc_67, b_67)
 	#f
 	with tf.variable_scope('L', reuse=True) as scope:
 		empty_23 = tf.zeros([batch_size, 23, 23, 50])
 		conv1_23 = f_net(tf.concat([batchX_23, empty_23], 3))
 		out_23 = tf.reshape(conv1_23, [batch_size, 50])
 		W_23 = tf.Variable(tf.truncated_normal([50, depth], stddev=0.1))
-		b_23 = tf.Variable(tf.zeros([batch_size, depth]))
-		fc_23 = tf.matmul(out_23, W_23) + b_23
+		b_23 = tf.Variable(tf.zeros([depth]))
+		fc_23 = tf.matmul(out_23, W_23)
+		fc_23 = tf.nn.bias_add(fc_23, b_23)
 
 	out = fc_155 + fc_67 + fc_23
 

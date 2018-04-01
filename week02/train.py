@@ -7,9 +7,7 @@ win_unicode_console.enable()
 batch_size = 50
 
 def main(restore = False):
-	train_set, val_setm, test_set, depth = data.read()
-	train_set = train_set.batch(batch_size)
-	test_set = test_set.batch(batch_size)
+	train_set, val_set, test_set, depth = data.read(batch_size, 0.1)
 
 	X_155 = tf.placeholder(tf.float32, [batch_size, 155, 155, 3])
 	X_67 = tf.placeholder(tf.float32, [batch_size, 67, 67, 3])
@@ -28,20 +26,6 @@ def main(restore = False):
 	next_ele = iterator.get_next()
 	val_iter = val_set.make_initializable_iterator()
 	next_val = val_iter.get_next()
-
-	with tf.Session() as sess:
-		sess.run(tf.global_variables_initializer())
-		print("init done")
-		for i in range(1000):
-			try:
-				img_155, img_67, img_23, _y = sess.run(next_ele)
-				sess.run(opt, feed_dict = {X_155: img_155, X_67: img_67, X_23: img_23, Y: _y})
-				if i % 100 == 0:
-					print('iter %5d' % (i))
-				print(sess.run(loss_mean, feed_dict = {X_155: img_155, X_67: img_67, X_23: img_23, Y: _y}))
-			except tf.errors.OutOfRangeError:
-				break
-		print("done")
 
 	saver = tf.train.Saver()
 	with tf.Session() as sess:
@@ -78,7 +62,7 @@ def main(restore = False):
 			lo = 0.0
 			while True:
 				try:
-					img_155, img_67, img_23, _y = sess.run(next_ele)
+					img_155, img_67, img_23, _y = sess.run(next_val)
 					_acc, _lo = sess.run([top_3_acc, loss_mean], feed_dict = {X_155: img_155, X_67: img_67, X_23: img_23, Y: _y})
 					cnt += 1
 					acc += _acc
