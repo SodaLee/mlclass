@@ -26,9 +26,9 @@ def conv_layer(inpt, filter_shape, stride, nam=None):
 	return out
 
 def f_net(inpt):
-	conv1 = conv_layer(inpt, [8, 8, 53, 25], 1, 'conv1')
+	conv1 = conv_layer(inpt, [8, 8, 53, 32], 1, 'conv1')
 	pool1 = tf.nn.max_pool(conv1, [1, 2, 2, 1], [1, 2, 2, 1], padding='SAME')
-	conv2 = conv_layer(pool1, [8, 8, 25, 50], 1, 'conv2')
+	conv2 = conv_layer(pool1, [8, 8, 32, 50], 1, 'conv2')
 	
 	return conv2
 
