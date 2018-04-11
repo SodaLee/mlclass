@@ -8,7 +8,7 @@ win_unicode_console.enable()
 batch_size = 50
 
 def main(restore = False, maxiter = 10, test = False):
-	train_set, val_set, test_set, depth = data.read(batch_size, 0.1)
+	train_set, val_set, test_set, depth = data.read(batch_size, 0.0)
 
 	X = tf.placeholder(tf.float32, [batch_size, 224, 224, 3])
 	Y = tf.placeholder(tf.int32, [batch_size])
@@ -79,14 +79,13 @@ def main(restore = False, maxiter = 10, test = False):
 						lo = 0.0
 				except tf.errors.OutOfRangeError:
 					break
-			print("Valid top3 acc:%f"%(tacc / cnt))
+			#print("Valid top3 acc:%f"%(tacc / cnt))
 			saver.save(sess, "./model/model.ckpt")
 			saver.save(sess, "./model/model_%d.ckpt"%i)
 			print("model saved")
 			
 		if test:
 			cnt = 0
-			sess.run(iterator.initializer)
 			while True:
 				try:
 					img, name = sess.run(next_test)
@@ -99,5 +98,5 @@ def main(restore = False, maxiter = 10, test = False):
 			print("test done", file = sys.stderr)
 
 if __name__ == "__main__":
-	main(restore=True, maxiter=10, test=False)
-	#main(restore=True, maxiter=0, test=True)
+	#main(restore=True, maxiter=0, test=False)
+	main(restore=True, maxiter=0, test=True)

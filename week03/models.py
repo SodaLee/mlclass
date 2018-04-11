@@ -10,12 +10,8 @@ def resnet(inpt, n, keep_rate):
     layers = []
 
     with tf.variable_scope('conv1'):
-        conv1 = conv_layer(inpt, [7, 7, 3, 64], 2, keep_rate)
+        conv1 = conv_layer(inpt, [5, 5, 3, 64], 2, keep_rate)
         layers.append(conv1)
-	
-    with tf.variable_scope('pool1'):
-        pool1 = tf.nn.max_pool(layers[-1], [1, 3, 3, 1], [1, 2, 2, 1], padding='SAME')
-        layers.append(pool1)
 
     for i in range (num_conv):
         with tf.variable_scope('conv2_%d' % (i+1)):
@@ -24,7 +20,7 @@ def resnet(inpt, n, keep_rate):
             layers.append(conv2_x)
             layers.append(conv2)
 
-        assert conv2.get_shape().as_list()[1:] == [56, 56, 64]
+        assert conv2.get_shape().as_list()[1:] == [16, 16, 64]
 
     for i in range (num_conv):
         down_sample = True if i == 0 else False
@@ -34,7 +30,7 @@ def resnet(inpt, n, keep_rate):
             layers.append(conv3_x)
             layers.append(conv3)
 
-        assert conv3.get_shape().as_list()[1:] == [28, 28, 128]
+        assert conv3.get_shape().as_list()[1:] == [8, 8, 128]
     
     for i in range (num_conv):
         down_sample = True if i == 0 else False
@@ -44,7 +40,7 @@ def resnet(inpt, n, keep_rate):
             layers.append(conv4_x)
             layers.append(conv4)
 
-        assert conv4.get_shape().as_list()[1:] == [14, 14, 256]
+        assert conv4.get_shape().as_list()[1:] == [4, 4, 256]
 		
     for i in range (num_conv):
         down_sample = True if i == 0 else False
@@ -54,14 +50,14 @@ def resnet(inpt, n, keep_rate):
             layers.append(conv5_x)
             layers.append(conv5)
 
-        assert conv5.get_shape().as_list()[1:] == [7, 7, 512]
+        assert conv5.get_shape().as_list()[1:] == [2, 2, 512]
 
     with tf.variable_scope('fc'):
         global_pool = tf.reduce_mean(layers[-1], [1, 2])
         assert global_pool.get_shape().as_list()[1:] == [512]
         
         fc = tf.nn.relu(fc_layer(global_pool, [512, 1000]))
-        out = fc_layer(fc, [1000, 80])
+        out = fc_layer(fc, [1000, 10])
         layers.append(out)
 
     return layers[-1]
