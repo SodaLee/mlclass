@@ -42,10 +42,8 @@ def residual_block(inpt, output_depth, keep_rate, down_sample, projection=True):
 
     if input_depth != output_depth:
         if projection:
-            # Option B: Projection shortcut
             input_layer = conv_layer(inpt, [1, 1, input_depth, output_depth], 1, keep_rate)
         else:
-            # Option A: Zero-padding
             input_layer = tf.pad(inpt, [[0,0], [0,0], [0,0], [0, output_depth - input_depth]])
     else:
         input_layer = inpt
