@@ -1,4 +1,4 @@
-from skimage import feature as ft, color
+from skimage import feature as ft, color, transform
 import matplotlib.pyplot as plt
 import cifar10
 import numpy as np
@@ -39,7 +39,7 @@ def k_means(features, labels, centers):
 			labels[i] = ind
 			changed = True
 
-	centers[:] = np.zeros([10, 36])
+	centers[:] = np.zeros([10, 324])
 	num = np.zeros(10)
 	for i, fea in enumerate(features):
 		centers[labels[i]-1] += fea
@@ -50,10 +50,10 @@ def k_means(features, labels, centers):
 
 train_set = cifar10.load_data()
 
-features = np.zeros([50000, 36])
+features = np.zeros([50000, 324])
 labels = np.zeros(50000, np.uint8)
 for i, img_RGB in enumerate(train_set[0]):
-	pic = color.rgb2gray(img_RGB)
+	pic = color.rgb2gray(transform.resize(img_RGB, (64, 64)))
 	features[i] = ft.hog(pic, 9, (16, 16), (2, 2), block_norm='L2-Hys')
 
 indexs = list(range(50000))
